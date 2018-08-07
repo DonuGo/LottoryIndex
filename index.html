@@ -1,40 +1,42 @@
-<!DOCTYPE html>
 <html>
-    <head>
-        <meta charset = "utf-8">
-        <title>Hello Web3</title>
-        <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/ethereum/web3.js/dist/web3.min.js"></script>
-        <script type="text/javascript">
-	  var Web3 = require('web3');
+	<head>
+	  <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/ethereum/web3.js/dist/web3.min.js"></script>
+	  <script src="https://cdn.rawgit.com/ethereumjs/browser-builds/2fb69a714afe092b06645286f14b94f41e5c062c/dist/ethereumjs-tx.js"></script>
+	  <script>
 
-          // change to the acess node
-          var web3 = new Web3(new Web3.providers.HttpProvider("https://rinkeby.infura.io/f8f78ce5057748059abbd716d80c7692"));
-          console.log(web3.currentProvider);
+		  console.log('typeof EthJS:',               (typeof EthJS))
+console.log('Object.keys(EthJS):',         Object.keys(EthJS))
+console.log('typeof EthJS.Tx:',            (typeof EthJS.Tx))
+console.log('typeof EthJS.RLP:',           (typeof EthJS.RLP))
+console.log('typeof EthJS.Util:',          (typeof EthJS.Util))
+console.log('typeof EthJS.Buffer:',        (typeof EthJS.Buffer))
+console.log('typeof EthJS.Buffer.Buffer:', (typeof EthJS.Buffer.Buffer))
 
-          var functionSig = "0x" + web3.sha3("sayHello()").substr(2,8);
-          console.log(functionSig);
-          async function start() {
-            try {
-            } catch(err) {
-              console.error("Error:", err);
-            }
-          }
-          window.addEventListener("load", start);
-          function myFunction() {
-	      var result = web3.eth.call({
-		// contract address
-	        to: "0xD78Cd44E08f7B1246E6371308F0A4Db538F8148B",
-		// contract function from sha3 "sayHello()"
-	        data: functionSig 
-	      });
+{
+	let privateKey = new EthJS.Buffer.Buffer('e331b6d69882b4cb4ea581d88e0b604039a3de5967688d3dcffdd2270c0fd109', 'hex')
+	let txParams = {
+		nonce:    '0x00',
+		gasPrice: '0x09184e72a000', 
+		gasLimit: '0x2710',
+		to:       '0x0000000000000000000000000000000000000000', 
+		value:    '0x00', 
+		data:     '0x7f7465737432000000000000000000000000000000000000000000000000000000600057'
+	}
+	let tx = new EthJS.Tx(txParams)
+	tx.sign(privateKey)
+	let serializedTx = tx.serialize().toString('hex')
 
-              console.log((result));
-          }
-        </script>
-      </head>
-    <body>
-        <h1>AAccount: <span id="account"></span></h1>
-        <h3>You have <span id="balance"></span> Ether</h3>
-	<button onclick="myFunction()">Click me</button>
-    </body>
+	console.log('serializedTx:', serializedTx);
+	let Web3 = require('web3');
+
+	// change to the acess node
+	let web3 = new Web3(new Web3.providers.HttpProvider("https://rinkeby.infura.io/f8f78ce5057748059abbd716d80c7692"));
+	console.log(web3.currentProvider);
+
+}
+
+	  </script>
+	</head>
+	<body>
+	</body>
 </html>
