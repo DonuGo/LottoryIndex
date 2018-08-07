@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset = "utf-8">
+        <title>Hello Web3</title>
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/ethereum/web3.js/dist/web3.min.js"></script>
+        <script type="text/javascript">
+	  var Web3 = require('web3');
+
+          // change to the acess node
+          var web3 = new Web3(new Web3.providers.HttpProvider("https://rinkeby.infura.io/f8f78ce5057748059abbd716d80c7692"));
+          console.log(web3.currentProvider);
+
+          var functionSig = "0x" + web3.sha3("sayHello()").substr(2,8);
+          console.log(functionSig);
+          async function start() {
+            try {
+            } catch(err) {
+              console.error("Error:", err);
+            }
+          }
+          window.addEventListener("load", start);
+          function myFunction() {
+	      var result = web3.eth.call({
+		// contract address
+	        to: "0xD78Cd44E08f7B1246E6371308F0A4Db538F8148B",
+		// contract function from sha3 "sayHello()"
+	        data: functionSig 
+	      });
+
+              console.log((result));
+          }
+        </script>
+      </head>
+    <body>
+        <h1>AAccount: <span id="account"></span></h1>
+        <h3>You have <span id="balance"></span> Ether</h3>
+	<button onclick="myFunction()">Click me</button>
+    </body>
+</html>
