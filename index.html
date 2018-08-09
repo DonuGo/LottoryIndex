@@ -1,20 +1,42 @@
 <html>
 	<head>
-	  <script type="text/javascript" src="web3.min.js"></script>
-	  <script src="ethereumjs-tx.js"></script>
-	  <script>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<style>
+.number input[type="checkbox"] {
+	display: none;
+}
+.number input[type="checkbox"] + label {
+	display: inline-block;
+	background-color: #FFF;
+	cursor: pointer;
+	padding: 5px 10px;
+	border:1px solid #000;
+}
+.number input[type="checkbox"]:checked + label {
+	background-color: #8ff;
+}
+	</style>
+	
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/ethereum/web3.js/dist/web3.min.js"></script>
+	<script src="https://cdn.rawgit.com/ethereumjs/browser-builds/2fb69a714afe092b06645286f14b94f41e5c062c/dist/ethereumjs-tx.js"></script>
+	<script>
+	
 	let Web3 = require('web3');
 	let web3 = new Web3(new Web3.providers.HttpProvider("https://rinkeby.infura.io/f8f78ce5057748059abbd716d80c7692"));
-	let sayHello = "0x" + web3.sha3("resetHello()").substr(2,8);
-	let privateKey = new EthJS.Buffer.Buffer('8053dc015c44b5262a4d42f0d62c5531b2c1e89b4839a8cd581eaf256b586c08', 'hex')
+	let privateKey = new EthJS.Buffer.Buffer('8053DC015C44B5262A4D42F0D62C5531B2C1E89B4839A8CD581EAF256B586C08', 'hex')
+	
+	let accountAddress = "0x5e8f5db76176a35a88a32684590793154625250b";
+	let contractAddress = "0xb438f13542cc0fe1c7c710ab28fce969a90bf8c5";
 
-function Reset() {
-	var non = web3.eth.getTransactionCount("0x5e8F5DB76176A35A88A32684590793154625250b");
+	
+	
+function Winning() {
+	let non = web3.eth.getTransactionCount(accountAddress);  
 	console.log(non);
-	let sayHello = "0x" + web3.sha3("resetHello()").substr(2,8);
+	let sayHello = "0x" + web3.sha3("winning()").substr(2,8);
 	let txParams = {
 		nonce: non,
-		to: '0x2195Fb4ABA0497E8901768e7DcDfA1eC1f7721aD', 
+		to: contractAddress, 
 		gasPrice: '0x09184e72a0',
 		gasLimit: '0x271000',
 		data: sayHello,
@@ -24,20 +46,55 @@ function Reset() {
 	let serializedTx = tx.serialize().toString('hex')
 
 	web3.eth.sendRawTransaction('0x' + serializedTx.toString('hex'), function(err, hash) {
-		if (!err)
+		if (!err) {
 			console.log(hash); // "0x7f9fade1c0d57a7af66ab4ead79fade1c0d57a7af66ab4ead7c2c2eb7b11a91385"
-		else
+			console.log(web3.eth.getTransaction(hash));
+		}
+		else 
 			console.log(err); 
 	});
 	console.log("Reset");
 }
-function Set() {
-	let non = web3.eth.getTransactionCount("0x5e8F5DB76176A35A88A32684590793154625250b");
-	let sayHello = "0x" + web3.sha3("setHello(uint256)").substr(2,8) + "0000000000000000000000000000000000000000000000000000000000000002";
-	console.log(sayHello);
+function Reset() {
+	let non = web3.eth.getTransactionCount(accountAddress);  
+		console.log(non);
+		let sayHello = "0x" + web3.sha3("resetState()").substr(2,8);
+		let txParams = {
+			nonce: non,
+			to: contractAddress, 
+			gasPrice: '0x09184e72a0',
+			gasLimit: '0x271000',
+			data: sayHello,
+		}
+		let tx = new EthJS.Tx(txParams)
+		tx.sign(privateKey)
+		let serializedTx = tx.serialize().toString('hex')
+	
+		web3.eth.sendRawTransaction('0x' + serializedTx.toString('hex'), function(err, hash) {
+			if (!err) 
+				console.log(hash); // "0x7f9fade1c0d57a7af66ab4ead79fade1c0d57a7af66ab4ead7c2c2eb7b11a91385"
+			else 
+				console.log(err); 
+		});
+	console.log("Reset");
+}
+function Betting(phone, num1, num2) {
+	let non = web3.eth.getTransactionCount(accountAddress);
+	
+	let phonestring = phone.toString('hex');
+	while (phonestring.length < 64) {phonestring = "0" + phonestring;}
+	//console.log("phonestring:", phonestring)
+	
+	let numstring1 = num1.toString('hex') + num2.toString('hex');
+	while (numstring1.length < 64) {numstring1 = "0" + numstring1;}
+	//console.log("numstring1:", numstring1)
+	
+	let sayHello = "0x" + web3.sha3("betting(uint256,uint256)").substr(2,8) + phonestring + numstring1;
+	// console.log(sayHello);
+	
 	let txParams = {
 		nonce:    non,
-		to: '0x2195Fb4ABA0497E8901768e7DcDfA1eC1f7721aD', 
+		to: contractAddress, 
 		gasPrice: '0x19184e72a0',
 		gasLimit: '0x271000',
 		data: sayHello,
@@ -47,29 +104,149 @@ function Set() {
 	let serializedTx = tx.serialize().toString('hex')
 
 	web3.eth.sendRawTransaction('0x' + serializedTx.toString('hex'), function(err, hash) {
-		if (!err)
+		if (!err) {
 			console.log(hash); // "0x7f9fade1c0d57a7af66ab4ead79fade1c0d57a7af66ab4ead7c2c2eb7b11a91385"
-		else
+		} else
 			console.log(err); 
 	});
 	console.log("Set");
 }
-function Get() {
-	let functionSig = "0x" + web3.sha3("sayHello()").substr(2,8);
+
+function getWinner() {
+	let functionSig = "0x" + web3.sha3("getWinner()").substr(2,8);
 	let result = web3.eth.call({
 		// contract address
-		to: "0x2195Fb4ABA0497E8901768e7DcDfA1eC1f7721aD",
+		to: contractAddress,
 		// contract function from sha3 "()"
 		data: functionSig
 	});
-	console.log((result));
+	let count = parseInt("0x" + (result.substr(result.length - 2,2))) ;
+	console.log(result);
+	for (let i = 0; i < count; i++) {
+		console.log((result.substr(2 + 64 * i, 64)));
+	}
+	for (let i = 0; i < count; i++) {
+		console.log((result.substr(2 + 100 * 64 + 64 * i, 64)));
+	}
+}
+function getBettor() {
+	let functionSig = "0x" + web3.sha3("getBettor()").substr(2,8);
+	let result = web3.eth.call({
+		// contract address
+		to: contractAddress,
+		// contract function from sha3 "()"
+		data: functionSig
+	});
+	let count = parseInt("0x" + (result.substr(result.length - 2,2))) ;
+	console.log(count);
+	for (let i = 0; i < count; i++) {
+		console.log((result.substr(2 + 64 * i, 64)));
+	}
+	for (let i = 0; i < count; i++) {
+		console.log((result.substr(2 + 100 * 64 + 64 * i, 64)));
+	}
 }
 
-	  </script>
-	</head>
-	<body>
-		<button onclick="Get()">Get</button>
-		<button onclick="Set()">Set</button>
-		<button onclick="Reset()">Reset</button>
-	</body>
-</html>
+function KeepCount() {
+	let elements = document.getElementsByName("skill");
+	let total = 0;
+
+	for(let i in elements) {
+		let element = elements[i];
+		if(element.checked) {
+			total++;
+		}
+		if(total > 2) {
+			alert("Two numbers are required");
+			element.checked = false;
+			return false;
+		}
+
+	}
+}
+function bet() {
+
+	let phonenumber = document.getElementById("phone");
+	let elements = document.getElementsByName("skill");
+	let total = 0;
+	
+	if (phonenumber.value == null) {
+		alert("Please enter your phone number");
+		return false;
+	}
+	
+	let number1 = elements[0].id;
+	let number2 = elements[0].id;
+	
+	for(let i in elements) {
+		let element = elements[i];
+		if(element.checked) {
+			total++;
+			if(total==1) number1 = element.id;
+			else if (total==2) number2 = element.id;			
+		}
+	}
+	
+	if(total != 2) {
+		alert("Please choose two numbers");
+		return false;
+	}
+
+	document.cookie = "played=yes";
+	if (document.cookie.split(';').filter((item) => item.includes('played=')).length) {
+		console.log('exists')
+	} else {
+		console.log('not exists')
+	}
+			
+	Betting(phonenumber.value, number1, number2);
+
+}
+	</script>
+	
+
+</head>
+<body>
+	<h1>Cassie Blockchain Lottory System</h1>
+	<h3>Please enter your phone number</h3>
+	<input type="text" id="phone" name="phoneNumber"><br>
+	<h3>Please choose two numbers</h3>
+	<div class="number">
+		<input type="checkbox" id="1" name="skill" onclick="return KeepCount()">
+		<label for="1">1</label>
+
+		<input type="checkbox" id="2" name="skill" onclick="return KeepCount()">
+		<label for="2">2</label>
+
+		<input type="checkbox" id="3" name="skill" onclick="return KeepCount()">
+		<label for="3">3</label>
+
+		<input type="checkbox" id="4" name="skill" onclick="return KeepCount()">
+		<label for="4">4</label>
+
+		<input type="checkbox" id="5" name="skill" onclick="return KeepCount()">
+		<label for="5">5</label>
+
+		<input type="checkbox" id="6" name="skill" onclick="return KeepCount()">
+		<label for="6">6</label>
+
+		<input type="checkbox" id="7" name="skill" onclick="return KeepCount()">
+		<label for="7">7</label>
+
+		<input type="checkbox" id="8" name="skill" onclick="return KeepCount()">
+		<label for="8">8</label>
+
+		<input type="checkbox" id="9" name="skill" onclick="return KeepCount()">
+		<label for="9">9</label>
+	</div>
+	<h3>Bet</h3>
+	<button onclick="return bet()">Bet</button>
+	<h3>Get</h3>
+	<button onclick="return getBettor()">Get</button>
+	<h3>樂透</h3>
+	<button onclick="return Winning()">Winning</button>
+	<h3>Get Winner</h3>
+	<button onclick="return getWinner()">Get Winner</button>
+	<h3>Reset</h3>
+	<button onclick="return Reset()">Reset</button>
+</body></html>
