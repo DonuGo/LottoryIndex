@@ -23,15 +23,23 @@
 	
 	let Web3 = require('web3');
 	let web3 = new Web3(new Web3.providers.HttpProvider("https://rinkeby.infura.io/f8f78ce5057748059abbd716d80c7692"));
-	let privateKey = new EthJS.Buffer.Buffer('8053DC015C44B5262A4D42F0D62C5531B2C1E89B4839A8CD581EAF256B586C08', 'hex')
+	let privateKey = [ new EthJS.Buffer.Buffer('8053DC015C44B5262A4D42F0D62C5531B2C1E89B4839A8CD581EAF256B586C08', 'hex'), 
+		new EthJS.Buffer.Buffer('0DC323696438A754D669665F06CABC9CC4F30DACE0DF48BCE307DEE73043907E', 'hex'), 
+		new EthJS.Buffer.Buffer('4A8CF2C8BA765087F870124CBAF61C71063BAA84AFD6C366C3143B579C9AF489', 'hex'), 
+		new EthJS.Buffer.Buffer('13C808002F81008293FF351832ED7FF4662FAEAF9EBE508B4CD5CA30D522FE67', 'hex'), 
+		new EthJS.Buffer.Buffer('4B15596FFFF5C98CB4886687AE214E43DC256993F2BA9755880FE6732AA9C52A', 'hex')
+	];
+	let accountAddress = ["0x5e8f5db76176a35a88a32684590793154625250b",
+	"0xd22cee2348cd21ba67840306a20312b99e0a02ec",
+	"0xba5fb4b844b2db5dd7119ddec1bbc879859abc5a",
+	"0x9241ddbb4b832580f1e104dc294afae98bc3ac0d",
+	"0x1b939c85a1dba97252109ddcbb13ab48330142ec"];
 	
-	let accountAddress = "0x5e8f5db76176a35a88a32684590793154625250b";
 	let contractAddress = "0xb438f13542cc0fe1c7c710ab28fce969a90bf8c5";
 
-	
-	
 function Winning() {
-	let non = web3.eth.getTransactionCount(accountAddress);  
+	
+	let non = web3.eth.getTransactionCount(accountAddress[0]);  
 	console.log(non);
 	let sayHello = "0x" + web3.sha3("winning()").substr(2,8);
 	let txParams = {
@@ -42,7 +50,7 @@ function Winning() {
 		data: sayHello,
 	}
 	let tx = new EthJS.Tx(txParams)
-	tx.sign(privateKey)
+	tx.sign(privateKey[0])
 	let serializedTx = tx.serialize().toString('hex')
 
 	web3.eth.sendRawTransaction('0x' + serializedTx.toString('hex'), function(err, hash) {
@@ -56,7 +64,7 @@ function Winning() {
 	console.log("Reset");
 }
 function Reset() {
-	let non = web3.eth.getTransactionCount(accountAddress);  
+	let non = web3.eth.getTransactionCount(accountAddress[0]);  
 		console.log(non);
 		let sayHello = "0x" + web3.sha3("resetState()").substr(2,8);
 		let txParams = {
@@ -67,7 +75,7 @@ function Reset() {
 			data: sayHello,
 		}
 		let tx = new EthJS.Tx(txParams)
-		tx.sign(privateKey)
+		tx.sign(privateKey[0])
 		let serializedTx = tx.serialize().toString('hex')
 	
 		web3.eth.sendRawTransaction('0x' + serializedTx.toString('hex'), function(err, hash) {
@@ -79,7 +87,8 @@ function Reset() {
 	console.log("Reset");
 }
 function Betting(phone, num1, num2) {
-	let non = web3.eth.getTransactionCount(accountAddress);
+	let r = Math.floor((Math.random() * 4));
+	let non = web3.eth.getTransactionCount(accountAddress[r]);
 	
 	let phonestring = phone.toString('hex');
 	while (phonestring.length < 64) {phonestring = "0" + phonestring;}
@@ -100,12 +109,15 @@ function Betting(phone, num1, num2) {
 		data: sayHello,
 	}
 	let tx = new EthJS.Tx(txParams)
-	tx.sign(privateKey)
+	tx.sign(privateKey[r])
 	let serializedTx = tx.serialize().toString('hex')
 
 	web3.eth.sendRawTransaction('0x' + serializedTx.toString('hex'), function(err, hash) {
 		if (!err) {
 			console.log(hash); // "0x7f9fade1c0d57a7af66ab4ead79fade1c0d57a7af66ab4ead7c2c2eb7b11a91385"
+			document.getElementById("p1").innerHTML = "您的分機號碼為: " + phone;
+			document.getElementById("p2").innerHTML = "您已成功投注: " + num1 + ", " + num2;
+
 		} else
 			console.log(err); 
 	});
@@ -169,8 +181,8 @@ function bet() {
 	let phonenumber = document.getElementById("phone");
 	let elements = document.getElementsByName("skill");
 	let total = 0;
-	
-	if (phonenumber.value == null) {
+	console.log(phonenumber.value);
+	if (phonenumber.value == "") {
 		alert("Please enter your phone number");
 		return false;
 	}
@@ -207,10 +219,10 @@ function bet() {
 
 </head>
 <body>
-	<h1>Cassie Blockchain Lottory System</h1>
-	<h3>Please enter your phone number</h3>
+	<h1>威盛大區塊鏈樂透系統</h1>
+	<h3>請輸入您的分機號碼</h3>
 	<input type="text" id="phone" name="phoneNumber"><br>
-	<h3>Please choose two numbers</h3>
+	<h3>請圈選兩個號碼</h3>
 	<div class="number">
 		<input type="checkbox" id="1" name="skill" onclick="return KeepCount()">
 		<label for="1">1</label>
@@ -239,14 +251,18 @@ function bet() {
 		<input type="checkbox" id="9" name="skill" onclick="return KeepCount()">
 		<label for="9">9</label>
 	</div>
-	<h3>Bet</h3>
-	<button onclick="return bet()">Bet</button>
-	<h3>Get</h3>
-	<button onclick="return getBettor()">Get</button>
-	<h3>樂透</h3>
+	<br>
+	<button onclick="return bet()">投注</button>
+	<!--
+	<h3>投注者</h3>
+	<button onclick="return getBettor()">Get Bettor</button>
+	<h3>樂透開獎</h3>
 	<button onclick="return Winning()">Winning</button>
-	<h3>Get Winner</h3>
+	<h3>中獎者</h3>
 	<button onclick="return getWinner()">Get Winner</button>
-	<h3>Reset</h3>
+	<h3>重設</h3>
 	<button onclick="return Reset()">Reset</button>
+	-->
+	<p id="p1"></p>
+	<p id="p2"></p>
 </body></html>
